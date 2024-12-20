@@ -34,7 +34,7 @@ void OpenMenu()
 
         if (command == close)
         {
-            std::cout << "Выход из программы.\n";
+            std::cout << "Exiting the program.\n";
             break;
         }
         else if (command == addVertex)
