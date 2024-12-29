@@ -184,7 +184,7 @@ public:
 
         LinkedList<T>* sublist = new LinkedList<T>();
         Node* current = head;
-        
+
         for (int i = 0; i <= endIndex; i++)
         {
             if (i >= startIndex)

@@ -61,10 +61,17 @@ void PrintValue(const LinkedList<T>& list, ostream& os)
     os << "]";
 }
 
-void PrintValue(const UndirectedGraph& graph, ostream& os)
+template <typename TValue>
+void PrintValue(const UndirectedGraph<TValue>& graph, ostream& os)
 {
     for (int vertex = 0; vertex < graph.GetVertexCount(); ++vertex) 
     {
+        if (!graph.GetAdjacentVertices(vertex).GetLength())
+        {
+            os << "Vertex " << vertex << " []\n";
+            continue;
+        }
+
         os << "Vertex " << vertex << ": ";
 
         auto adjacentVertices = graph.GetAdjacentVertices(vertex);

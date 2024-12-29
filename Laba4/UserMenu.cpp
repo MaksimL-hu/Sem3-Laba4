@@ -22,7 +22,7 @@ void DisplayMenu()
 void OpenMenu()
 {
     bool isWork = true;
-    UndirectedGraph graph;
+    UndirectedGraph<int> graph;
     std::string command;
 
     while (isWork)
@@ -55,8 +55,7 @@ void OpenMenu()
             int vertexCount, edgeCount, minWeight, maxWeight;
             std::cout << "Enter the number of vertices, the number of edges, the minimum weight and the maximum weight: ";
             std::cin >> vertexCount >> edgeCount >> minWeight >> maxWeight;
-            graph = UndirectedGraph(vertexCount);
-            GenerateGraph(graph, edgeCount, minWeight, maxWeight);
+            graph = std::move(GenerateGraph<int>(vertexCount, edgeCount, minWeight, maxWeight));
             std::cout << "The graph is generated.\n";
         }
         else if (command == saveGraphToFile)

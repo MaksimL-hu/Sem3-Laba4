@@ -121,6 +121,18 @@ public:
         return *this;
     }
 
+    bool operator==(const DynamicArray& other) const
+    {
+        if (size != other.size)
+            return false;
+
+        for (int i = 0; i < size; ++i)
+            if (data[i] != other.data[i])
+                return false;
+
+        return true;
+    }
+
     ~DynamicArray()
     {
         if (data)

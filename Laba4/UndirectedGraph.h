@@ -1,14 +1,17 @@
 #ifndef UNDIRECTED_GRAPH_H
 #define UNDIRECTED_GRAPH_H
 
-#include "DynamicArray.h"
-#include "Edge.h"
-#include "LinkedList.h"
+#include <optional>
 
+#include "HashTable.h"
+#include "Edge.h"
+#include "DynamicArray.h"
+
+template <typename TKey>
 class UndirectedGraph {
 private:
     int vertexCount;
-    DynamicArray<LinkedList<Edge>> adjacencyList;
+    HashTable<TKey, DynamicArray<Edge>> adjacencyList;
 
 public:
     UndirectedGraph(int vertexCount = 0)
@@ -17,37 +20,31 @@ public:
             vertexCount = 0;
 
         this->vertexCount = vertexCount;
-        adjacencyList = DynamicArray<LinkedList<Edge>>(vertexCount);
+        adjacencyList = HashTable<TKey, DynamicArray<Edge>>(vertexCount);
     }
 
-    void AddEdge(int vertex1, int vertex2, int weight)
+    void AddEdge(TKey vertex1, TKey vertex2, int weight)
     {
-        if (vertex1 < 0 || vertex2 < 0 || vertex1 >= vertexCount || vertex2 >= vertexCount)
-            throw std::out_of_range("Vertex index out of range");
+        if (adjacencyList.GetValue(vertex1) == std::nullopt || adjacencyList.GetValue(vertex2) == std::nullopt)
+            return;
 
-        for (int i = 0; i < adjacencyList[vertex1].GetLength(); i++)
-        {
-            auto begin = adjacencyList[vertex1].ToBegin();
-            auto end = adjacencyList[vertex1].ToEnd();
+        for (int i = 0; i < adjacencyList.GetValue(vertex1).value().GetLength(); i++)
+            if (adjacencyList.GetValue(vertex1).value()[i].vertex == vertex2)
+                return;
 
-            while (*begin != *end)
-            {
-                if ((**begin).vertex == vertex2)
-                    return;
-
-                ++(*begin);
-            }
-        }
-
-        adjacencyList[vertex1].Append(Edge(vertex2, weight));
-        adjacencyList[vertex2].Append(Edge(vertex1, weight));
+        DynamicArray<Edge> array1 = adjacencyList.GetValue(vertex1).value();
+        array1.Append(Edge(vertex2, weight));
+        DynamicArray<Edge> array2 = adjacencyList.GetValue(vertex2).value();
+        array2.Append(Edge(vertex1, weight));
+        adjacencyList.Add(vertex1, array1);
+        adjacencyList.Add(vertex2, array2);
     }
 
     void AddVertex()
     {
-        LinkedList<Edge> newAdjacencyList;
+        DynamicArray<Edge> newAdjacencyList;
 
-        adjacencyList.Append(newAdjacencyList);
+        adjacencyList.Add(vertexCount, newAdjacencyList);
         vertexCount++;
     }
 
@@ -56,47 +53,61 @@ public:
         return vertexCount;
     }
 
-    LinkedList<Edge>& GetAdjacentVertices(int vertex) const
+    DynamicArray<Edge> GetAdjacentVertices(TKey vertex) const
     {
-        if (vertex < 0 || vertex >= vertexCount)
-            throw std::out_of_range("Vertex index out of range");
+        auto result = adjacencyList.GetValue(vertex);
 
-        return adjacencyList[vertex];
+        if (result.has_value())
+            return result.value();
+        else
+            return DynamicArray<Edge>();
+    }
+
+    bool AreConnected(TKey vertex1, TKey vertex2) const
+    {
+        if (adjacencyList.GetValue(vertex1) == std::nullopt || adjacencyList.GetValue(vertex2) == std::nullopt)
+            return false;
+
+        DynamicArray<Edge> adjacentVertices = GetAdjacentVertices(vertex1);
+
+        for (int i = 0; i < adjacentVertices.GetLength(); i++)
+            if (adjacentVertices[i].vertex == vertex2)
+                return true;
+
+        return false;
     }
 
     DynamicArray<int> ColorGraph()
     {
         DynamicArray<int> colors(vertexCount);
 
-        for (int i = 0; i < vertexCount; i++) 
-            colors.Set(i, 0);
+        for (int i = 0; i < vertexCount; i++)
+            colors.Set(i, -1); 
 
-        colors.Set(0, 1);
+        colors.Set(0, 0);
 
-        for (int i = 1; i < vertexCount; i++) 
+        DynamicArray<bool> availableColors(vertexCount);
+
+        for (int i = 1; i < vertexCount; i++)
         {
-            DynamicArray<bool> availableColors(vertexCount);
-
             for (int j = 0; j < vertexCount; j++)
                 availableColors.Set(j, true);
 
-            auto begin = GetAdjacentVertices(i).ToBegin();
-            auto end = GetAdjacentVertices(i).ToEnd();
+            DynamicArray<Edge> adjacentEdges = GetAdjacentVertices(i);
 
-            while (*begin != *end) {
-                int edge = (**begin).vertex;
+            for (int j = 0; j < adjacentEdges.GetLength(); j++)
+            {
+                int neighbor = adjacentEdges[j].vertex;
 
-                if (colors.GetElement(edge) != 0)
-                    availableColors.Set(colors.GetElement(edge) - 1, false);
-
-                ++(*begin);
+                if (colors.GetElement(neighbor) != -1)
+                    availableColors.Set(colors.GetElement(neighbor), false);
             }
 
-            for (int color = 0; color < vertexCount; color++) 
+            for (int color = 0; color < vertexCount; color++)
             {
-                if (availableColors.GetElement(color)) 
+                if (availableColors.GetElement(color))
                 {
-                    colors.Set(i, color + 1);
+                    colors.Set(i, color);
                     break;
                 }
             }
@@ -115,6 +126,9 @@ public:
             visited.Set(i, false);
         }
 
+        if (startVertex < 0 || startVertex> vertexCount || GetAdjacentVertices(startVertex) == DynamicArray<Edge>())
+            return distances;
+
         distances.Set(startVertex, 0);
 
         for (int i = 0; i < vertexCount - 1; i++) {
@@ -132,7 +146,7 @@ public:
 
             visited.Set(minVertex, true);
 
-            LinkedList<Edge>& adjacentEdges = GetAdjacentVertices(minVertex);
+            DynamicArray<Edge> adjacentEdges = GetAdjacentVertices(minVertex);
             auto begin = adjacentEdges.ToBegin();
             auto end = adjacentEdges.ToEnd();
 
