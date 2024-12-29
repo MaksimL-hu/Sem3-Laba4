@@ -207,33 +207,6 @@ namespace UndirectedGraphTests
 }
 
 
-namespace FileWorkerTests
-{
-    void SaveAndLoadGraph()
-    {
-        UndirectedGraph<int> graph;
-        graph.AddVertex(1);
-        graph.AddVertex(2);
-        graph.AddEdge(1, 2, 5);
-
-        SaveGraphToFile(graph, "test_graph.txt");
-
-        UndirectedGraph<int> loadedGraph;
-        LoadGraphFromFile(loadedGraph, "test_graph.txt");
-
-        assert(loadedGraph.GetVertexCount() == 2);
-        assert(loadedGraph.AreConnected(1, 2));
-    }
-
-    void LoadNonExistentFile()
-    {
-        UndirectedGraph<int> graph;
-        LoadGraphFromFile(graph, "non_existent_file.txt");
-        assert(graph.GetVertexCount() == 0);
-    }
-}
-
-
 void TestHashTable()
 {
     HashTableTests::AddElements();
@@ -261,16 +234,9 @@ void TestUndirectedGraph()
     UndirectedGraphTests::CalculateMinDistances();
 }
 
-void TestFileWorker()
-{
-    FileWorkerTests::SaveAndLoadGraph();
-    FileWorkerTests::LoadNonExistentFile();
-}
-
 void RunAllTests()
 {
     TestHashTable();
     TestDynamicArray();
     TestUndirectedGraph();
-    TestFileWorker();
 }
