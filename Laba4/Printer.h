@@ -15,14 +15,7 @@ void PrintValue(const T& value, ostream& os)
     os << value;
 }
 
-void PrintValue(const Edge& value, ostream& os)
-{
-    os << "(";
-    os << value.vertex;
-    os << ", weight: ";
-    os << value.weight;
-    os << ")";
-}
+void PrintValue(const Edge& value, ostream& os);
 
 template <typename T>
 void PrintValue(const DynamicArray<T>& value, ostream& os)
@@ -64,8 +57,10 @@ void PrintValue(const LinkedList<T>& list, ostream& os)
 template <typename TValue>
 void PrintValue(const UndirectedGraph<TValue>& graph, ostream& os)
 {
-    for (int vertex = 0; vertex < graph.GetVertexCount(); ++vertex) 
+    for (int index = 0; index < graph.GetVertexCount(); ++index)
     {
+        TValue vertex = graph.GetVertex(index);
+
         if (!graph.GetAdjacentVertices(vertex).GetLength())
         {
             os << "Vertex " << vertex << " []\n";
@@ -82,24 +77,14 @@ void PrintValue(const UndirectedGraph<TValue>& graph, ostream& os)
     }
 }
 
-void PrintGraphColor(DynamicArray<int> colors, ostream& os)
+template <typename TKey>
+void PrintGraphDistances(const UndirectedGraph<TKey>& graph, DynamicArray<int>& distances, std::ostream& os)
 {
-    for (int i = 0; i < colors.GetLength(); i++)
+    for (int i = 0; i < graph.GetVertexCount(); i++)
     {
-        os << "Vertex ";
-        PrintValue(i, os);
-        os << " ---> Color ";
-        PrintValue(colors.GetElement(i), os);
-        os << "\n";
-    }
-}
-
-void PrintGraphDistances(DynamicArray<int> distances, ostream& os)
-{
-    for (int i = 0; i < distances.GetLength(); i++) 
-    {
+        TKey vertex = graph.GetVertex(i);
         os << "Minimum distance to vertex ";
-        PrintValue(i, os);
+        os << vertex;
         os << ": ";
 
         if (distances.GetElement(i) == std::numeric_limits<int>::max())
@@ -108,9 +93,23 @@ void PrintGraphDistances(DynamicArray<int> distances, ostream& os)
         }
         else
         {
-            PrintValue(distances.GetElement(i), os);
+            os << distances.GetElement(i);
             os << "\n";
         }
+    }
+}
+
+template <typename TKey>
+void PrintGraphColor(const UndirectedGraph<TKey>& graph, DynamicArray<int>& colors, std::ostream& os)
+{
+    for (int i = 0; i < graph.GetVertexCount(); i++)
+    {
+        TKey vertex = graph.GetVertex(i);
+        os << "Vertex ";
+        os << vertex;
+        os << " ---> Color ";
+        os << colors.GetElement(i);
+        os << "\n";
     }
 }
 

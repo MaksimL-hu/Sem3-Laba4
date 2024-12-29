@@ -70,9 +70,7 @@ public:
     LinkedList(T* items, int count) : head(nullptr), tail(nullptr), length(0)
     {
         for (int i = 0; i < count; ++i)
-        {
             Append(items[i]);
-        }
     }
 
     LinkedList(LinkedList<T>& list) : head(nullptr), tail(nullptr), length(0)
@@ -89,9 +87,7 @@ public:
     LinkedList(DynamicArray<T>& dynamicArray) : head(nullptr), tail(nullptr), length(0)
     {
         for (int i = 1; i < dynamicArray.GetLength(); i++)
-        {
             Append(dynamicArray.GetElement(i));
-        }
     }
 
     ~LinkedList()
@@ -149,9 +145,8 @@ public:
         Node* current = head;
 
         for (int i = 0; i < index; i++)
-        {
             current = current->next;
-        }
+
 
         return current;
     }
@@ -168,9 +163,7 @@ public:
         Node* current = head;
 
         for (int i = 0; i < index; i++)
-        {
             current = current->next;
-        }
 
         current->data = value;
     }
@@ -178,9 +171,7 @@ public:
     LinkedList<T>* GetSubsequence(int startIndex, int endIndex) override
     {
         if (endIndex >= length)
-        {
             endIndex = length - 1;
-        }
 
         LinkedList<T>* sublist = new LinkedList<T>();
         Node* current = head;
@@ -188,9 +179,7 @@ public:
         for (int i = 0; i <= endIndex; i++)
         {
             if (i >= startIndex)
-            {
                 sublist->Append(current->data);
-            }
 
             current = current->next;
         }
@@ -236,13 +225,9 @@ public:
         Node* newNode = new Node(item, head);
 
         if (length == 0)
-        {
             head = tail = newNode;
-        }
         else
-        {
             head = newNode;
-        }
 
         length++;
     }
@@ -277,9 +262,40 @@ public:
         int length = list->GetLength();
 
         for (int i = 0; i < length; i++)
-        {
             Append(list->GetElement(i));
+    }
+
+    void Remove(int index) override
+    {
+        if (index < 0 || index >= length)
+            throw std::out_of_range("Index out of range");
+
+        Node* toDelete;
+
+        if (index == 0)
+        {
+            toDelete = head;
+            head = head->next;
+
+            if (head == nullptr)
+                tail = nullptr;
         }
+        else
+        {
+            Node* current = head;
+
+            for (int i = 0; i < index - 1; ++i)
+                current = current->next;
+
+            toDelete = current->next;
+            current->next = toDelete->next;
+
+            if (toDelete == tail)
+                tail = current;
+        }
+
+        delete toDelete;
+        length--;
     }
 };
 

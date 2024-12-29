@@ -17,9 +17,7 @@ private:
         int minSize = (newSize < size) ? newSize : size;
 
         for (int i = 0; i < minSize; ++i)
-        {
             newData[i] = data[i];
-        }
 
         delete[] data;
         data = newData;
@@ -74,9 +72,7 @@ public:
         data = new T[size];
 
         for (int i = 0; i < size; ++i)
-        {
             Set(i, items[i]);
-        }
     }
 
     DynamicArray(T example, int size)
@@ -189,17 +185,13 @@ public:
             length = endIndex - startIndex + 1;
 
             if (startIndex == 0)
-            {
                 length -= 1;
-            }
         }
 
         T* items = new T[length];
 
         for (int i = 0; i < length; i++)
-        {
             items[i] = GetElement(startIndex + i);
-        }
 
         return new DynamicArray<T>(items, length);
     }
@@ -221,9 +213,7 @@ public:
         Resize(size + dataSize);
 
         for (int i = oldSize; i < oldSize + dataSize; i++)
-        {
             Set(i, data[i - oldSize]);
-        }
     }
 
     void Prepend(T data) override
@@ -236,9 +226,7 @@ public:
         Resize(size + 1);
 
         for (int i = size - 1; i > index; i--)
-        {
             Set(i, GetElement(i - 1));
-        }
 
         Set(index, data);
     }
@@ -248,9 +236,15 @@ public:
         int oldSize = size;
 
         for (int i = 0; i < dynamicArray->GetLength(); i++)
-        {
             Append(dynamicArray->GetElement(i));
-        }
+    }
+
+    void Remove(int index) override
+    {
+        for (int i = index; i < size - 1; i++)
+            Set(i, GetElement(i + 1));
+
+        Resize(size - 1);
     }
 };
 

@@ -22,19 +22,18 @@ void SaveGraphToFile(const UndirectedGraph<TValue>& graph, const std::string& fi
 
     for (int vertex = 0; vertex < vertexCount; ++vertex)
     {
-        auto adjacentVertices = graph.GetAdjacentVertices(vertex);
+        auto adjacentVertices = graph.GetAdjacentVertices(graph.GetVertex(vertex));
         auto begin = adjacentVertices.ToBegin();
         auto end = adjacentVertices.ToEnd();
 
         while (*begin != *end)
         {
-            outFile << vertex << " " << (**begin).vertex << " " << (**begin).weight << "\n";
+            outFile << graph.GetVertex(vertex) << " " << (**begin).vertex << " " << (**begin).weight << "\n";
             ++(*begin);
         }
     }
 
     outFile.close();
-
     std::cout << "The graph has been successfully saved to a file " << filename << ".\n";
 }
 
@@ -53,7 +52,7 @@ void LoadGraphFromFile(UndirectedGraph<TValue>& graph, const std::string& filena
     inFile >> vertexCount;
 
     for (int i = 0; i < vertexCount; ++i)
-        graph.AddVertex();
+        graph.AddVertex(i);
 
     int vertex1, vertex2, weight;
     while (inFile >> vertex1 >> vertex2 >> weight)
@@ -62,5 +61,43 @@ void LoadGraphFromFile(UndirectedGraph<TValue>& graph, const std::string& filena
     inFile.close();
     std::cout << "The graph has been successfully loaded from the file " << filename << ".\n";
 }
+
+template <typename TValue>
+void SaveGraphToDot(const UndirectedGraph<TValue>& graph, const std::string& filename)
+{
+    std::ofstream dotFile(filename);
+
+    if (!dotFile) {
+        std::cerr << "Error opening file for writing\n";
+        return;
+    }
+
+    dotFile << "graph G {\n";
+
+    for (int i = 0; i < graph.GetVertexCount(); ++i)
+    {
+        TValue vertex = graph.GetVertex(i);
+        dotFile << "  \"" << vertex << "\";\n";
+
+        auto adjacentVertices = graph.GetAdjacentVertices(vertex);
+
+        for (int j = 0; j < adjacentVertices.GetLength(); ++j)
+        {
+            TValue adjacentVertex = adjacentVertices[j].vertex;
+            int weight = adjacentVertices[j].weight;
+
+            if (vertex < adjacentVertex)
+                dotFile << "  \"" << vertex << "\" -- \"" << adjacentVertex << "\" [label=\"" << weight << "\"];\n";
+        }
+    }
+
+    dotFile << "}\n";
+
+    dotFile.close();
+    std::cout << "Graph has been successfully saved to " << filename << " in DOT format.\n";
+}
+
+
+void GenerateGraphImage(const std::string& dotFilename, const std::string& outputFilename);
 
 #endif

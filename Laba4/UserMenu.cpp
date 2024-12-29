@@ -5,17 +5,21 @@
 #include "Printer.h"
 #include "FileWorker.h"
 #include "Commands.h"
+#include "Tests.h"
 
 void DisplayMenu()
 {
     std::cout << addVertex << ". Add vertex\n";
+    std::cout << deleteVertex << ". Delete vertex\n";
     std::cout << addEdge << ". Add edge\n";
+    std::cout << deleteEdge << ". Delete edge\n";
     std::cout << generateGraph << ". Generate graph\n";
     std::cout << saveGraphToFile << ". Save graph to the file\n";
     std::cout << uploadGraphFromFile << ". Upload graph from the file\n";
     std::cout << colorGraph << ". Color graph\n";
     std::cout << calculateMinimumDistances << ". Calculate minimum distances\n";
     std::cout << printGraph << ". Print graph\n";
+    std::cout << runTests << ". Run tests\n";
     std::cout << close << ". Exit\n";
 }
 
@@ -39,8 +43,19 @@ void OpenMenu()
         }
         else if (command == addVertex)
         {
-            graph.AddVertex();
+            int vertex;
+            std::cout << "Enter the vertex: ";
+            std::cin >> vertex;
+            graph.AddVertex(vertex);
             std::cout << "A vertex has been added.\n";
+        }
+        else if (command == deleteVertex)
+        {
+            int vertex;
+            std::cout << "Enter the vertex to delete: ";
+            std::cin >> vertex;
+            graph.RemoveVertex(vertex);
+            std::cout << "A vertex has been deleted.\n";
         }
         else if (command == addEdge)
         {
@@ -50,12 +65,20 @@ void OpenMenu()
             graph.AddEdge(vertex1, vertex2, weight);
             std::cout << "An edge has been added.\n";
         }
+        else if (command == deleteEdge)
+        {
+            int vertex1, vertex2;
+            std::cout << "Enter the first vertex, the second vertex: ";
+            std::cin >> vertex1 >> vertex2;
+            graph.RemoveEdge(vertex1, vertex2);
+            std::cout << "An edge has been added.\n";
+        }
         else if (command == generateGraph)
         {
             int vertexCount, edgeCount, minWeight, maxWeight;
             std::cout << "Enter the number of vertices, the number of edges, the minimum weight and the maximum weight: ";
             std::cin >> vertexCount >> edgeCount >> minWeight >> maxWeight;
-            graph = std::move(GenerateGraph<int>(vertexCount, edgeCount, minWeight, maxWeight));
+            graph = std::move(GenerateGraph(vertexCount, edgeCount, minWeight, maxWeight));
             std::cout << "The graph is generated.\n";
         }
         else if (command == saveGraphToFile)
@@ -75,7 +98,7 @@ void OpenMenu()
         else if (command == colorGraph)
         {
             DynamicArray<int> colors = graph.ColorGraph();
-            PrintGraphColor(colors, std::cout);
+            PrintGraphColor(graph, colors, std::cout);
         }
         else if (command == calculateMinimumDistances)
         {
@@ -83,11 +106,23 @@ void OpenMenu()
             std::cout << "Enter the starting vertex: ";
             std::cin >> startVertex;
             DynamicArray<int> distances = graph.CalculateMinDistances(startVertex);
-            PrintGraphDistances(distances, std::cout);
+            PrintGraphDistances(graph, distances, std::cout);
         }
         else if (command == printGraph)
         {
             PrintValue(graph, std::cout);
+
+            std::string dotFilename = "graph.dot";
+            std::string imageFilename = "graph.png";
+
+            SaveGraphToDot(graph, dotFilename);
+            GenerateGraphImage(dotFilename, imageFilename);
+            std::cout << "Graph has been saved as " << imageFilename << ".\n";
+        }
+        else if (command == runTests)
+        {
+            RunAllTests();
+            std::cout << "Tests passed successfully\n";
         }
         else
         {
